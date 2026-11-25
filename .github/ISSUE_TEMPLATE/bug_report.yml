@@ -1,0 +1,90 @@
+---
+name: 🐛 Bug Report
+description: Report a bug or unexpected behaviour
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill in as much detail as possible.
+
+  - type: input
+    id: version
+    attributes:
+      label: uFlask version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Raspberry Pi Pico W (MicroPython)
+        - CPython 3.9
+        - CPython 3.10
+        - CPython 3.11
+        - CPython 3.12
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: micropython-version
+    attributes:
+      label: MicroPython version (if applicable)
+      placeholder: "1.22.1"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: A clear description of what the bug is.
+      placeholder: "When I call abort(404), the response has status 200 instead of 404…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code that reproduces the issue.
+      render: python
+      placeholder: |
+        from uflask import UFlask, abort
+
+        app = UFlask(__name__)
+
+        @app.get("/test")
+        def test(request):
+            abort(404)
+
+        # curl http://pico.local/test
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      placeholder: "Should return HTTP 404"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      placeholder: "Returns HTTP 200"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      render: shell
