@@ -145,16 +145,49 @@ class ErrorHandlerRegistry:
         else:
             raise TypeError("errorhandler() expects an int or an Exception subclass")
 
+    @staticmethod
+    def _mro(cls):
+        """
+        Return a list representing the MRO (method resolution order) of *cls*.
+
+        MicroPython does not expose ``__mro__`` on exception classes, so we
+        walk the inheritance chain manually via ``__bases__`` instead.
+        """
+        try:
+            # CPython / newer MicroPython: __mro__ is available
+            return cls.__mro__
+        except AttributeError:
+            pass
+        # Manual BFS walk for MicroPython
+        seen   = []
+        queue  = [cls]
+        while queue:
+            cur = queue.pop(0)
+            if cur in seen:
+                continue
+            seen.append(cur)
+            try:
+                for base in cur.__bases__:
+                    if base not in seen:
+                        queue.append(base)
+            except AttributeError:
+                pass
+        return seen
+
     def find(self, exc):
         """
         Return the most appropriate registered handler for *exc*, or None.
 
         Resolution order:
-          1. Exact exception type (MRO walk)
+          1. Exact exception type (MRO walk, MicroPython-compatible)
           2. HTTP status code (for HTTPException subclasses)
         """
-        # Walk MRO of the exception type
-        for cls in type(exc).__mro__:
+        # Walk MRO of the exception type (MicroPython-safe)
+        try:
+            mro = self._mro(type(exc))
+        except Exception:
+            mro = [type(exc)]
+        for cls in mro:
             if cls in self._by_type:
                 return self._by_type[cls]
 

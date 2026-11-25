@@ -586,10 +586,36 @@ class UFlask:
             exc_ctx  = exc
             response = self._build_error_response(exc, request)
 
+        except TimeoutError as exc:
+            # asyncio.wait_for() raised TimeoutError — MicroPython's TimeoutError
+            # does not have __mro__, so handle it here before it reaches
+            # _build_error_response / ErrorHandlerRegistry.
+            exc_ctx = exc
+            _log.warning("Request timed out")
+            response = Response(
+                "408 Request Timeout",
+                408,
+                content_type="text/plain; charset=utf-8",
+            )
+
+        except OSError as exc:
+            # Client disconnected mid-request — not an application error
+            exc_ctx = exc
+            _log.debug("OSError during request (client disconnect?): %s" % exc)
+            return
+
         except Exception as exc:
             exc_ctx = exc
             _log.exception("Unhandled exception during request", exc)
-            response = self._build_error_response(exc, request)
+            try:
+                response = self._build_error_response(exc, request)
+            except Exception as inner:
+                _log.error("Error in _build_error_response: %s" % inner)
+                response = Response(
+                    "500 Internal Server Error",
+                    500,
+                    content_type="text/plain; charset=utf-8",
+                )
 
         # ---- Apply CORS headers to real response ----
         if self.cors is not None and request is not None:
