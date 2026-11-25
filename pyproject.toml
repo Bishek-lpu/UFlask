@@ -1,0 +1,102 @@
+[build-system]
+requires      = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+# ---------------------------------------------------------------------------
+# Project metadata  (PEP 621)
+# ---------------------------------------------------------------------------
+[project]
+name            = "uflask"
+version         = "1.0.0"
+description     = "Flask-compatible micro web framework for MicroPython / Raspberry Pi Pico W"
+readme          = "README.md"
+license         = { file = "LICENSE" }
+authors         = [{ name = "Bishek", email = "bishek@example.com" }]
+keywords        = [
+    "micropython", "pico", "raspberry-pi", "web-framework",
+    "flask", "rest-api", "iot", "embedded",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: MicroPython",
+    "Operating System :: OS Independent",
+]
+
+# No hard dependencies — the library targets MicroPython which ships everything
+# it needs.  For CPython development / testing, optional extras are available.
+requires-python  = ">=3.9"
+dependencies     = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",        # HTTP test client
+    "coverage>=7",
+    "build>=1",
+    "twine>=5",
+]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9",
+    "mkdocstrings[python]>=0.24",
+]
+
+[project.urls]
+Homepage       = "https://github.com/bishek/uflask"
+Repository     = "https://github.com/bishek/uflask"
+Documentation  = "https://uflask.readthedocs.io"
+"Bug Tracker"  = "https://github.com/bishek/uflask/issues"
+Changelog      = "https://github.com/bishek/uflask/blob/main/CHANGELOG.md"
+
+# ---------------------------------------------------------------------------
+# Package discovery
+# ---------------------------------------------------------------------------
+[tool.setuptools.packages.find]
+where   = ["."]
+include = ["uflask*"]
+
+[tool.setuptools.package-data]
+uflask = ["py.typed"]     # PEP 561 marker
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths        = ["tests"]
+asyncio_mode     = "auto"
+filterwarnings   = ["error"]
+
+# ---------------------------------------------------------------------------
+# coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source  = ["uflask"]
+omit    = ["tests/*", "examples/*"]
+
+[tool.coverage.report]
+show_missing  = true
+skip_covered  = false
+fail_under    = 80
+
+# ---------------------------------------------------------------------------
+# ruff  (linter / formatter — optional, great for CI)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]   # long lines allowed in template strings

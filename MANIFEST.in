@@ -1,0 +1,25 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include pyproject.toml
+include setup.cfg
+
+# Include all Python source
+recursive-include uflask *.py py.typed
+
+# Include example application
+recursive-include examples *.py *.html *.css *.js *.md
+
+# Include test suite
+recursive-include tests *.py
+
+# Include documentation
+recursive-include docs *.md *.png *.svg
+
+# Exclude compiled bytecode and dev artefacts
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.egg-info
+global-exclude .DS_Store
+global-exclude .git*
+global-exclude *.so
