@@ -586,10 +586,11 @@ class UFlask:
             exc_ctx  = exc
             response = self._build_error_response(exc, request)
 
-        except TimeoutError as exc:
-            # asyncio.wait_for() raised TimeoutError — MicroPython's TimeoutError
-            # does not have __mro__, so handle it here before it reaches
-            # _build_error_response / ErrorHandlerRegistry.
+        except asyncio.TimeoutError as exc:
+            # asyncio.wait_for() raises asyncio.TimeoutError on MicroPython
+            # (bare 'TimeoutError' is not a builtin in MicroPython).
+            # Handle it here before it reaches _build_error_response so we
+            # never try to walk __mro__ on a MicroPython built-in exception.
             exc_ctx = exc
             _log.warning("Request timed out")
             response = Response(

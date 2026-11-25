@@ -84,5 +84,17 @@ if not hasattr(asyncio, "wait_for"):
         return await coro
     asyncio.wait_for = _wait_for
 
+# ---------------------------------------------------------------------------
+# TimeoutError  (MicroPython < 1.22 does not have it as a builtin)
+# On MicroPython asyncio.TimeoutError IS the timeout exception;
+# on CPython asyncio.TimeoutError is an alias for the builtin TimeoutError.
+# We always use asyncio.TimeoutError in except clauses.
+# ---------------------------------------------------------------------------
+if not hasattr(asyncio, "TimeoutError"):
+    # Very old MicroPython: define a stub so the except clause won't NameError
+    class _TimeoutError(Exception):
+        pass
+    asyncio.TimeoutError = _TimeoutError
+
 # Re-export so callers can do: from uflask._compat import asyncio, json, os
 __all__ = ["asyncio", "json", "os", "gc", "time", "MICROPYTHON"]
