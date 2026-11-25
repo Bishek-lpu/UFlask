@@ -25,12 +25,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+      - name: Upgrade pip and install build tools
+        run: python -m pip install --upgrade pip setuptools wheel
 
-      - name: Run syntax check (ast.parse)
+      - name: Install package in editable mode with dev extras
+        run: pip install -e ".[dev]"
+
+      - name: Run syntax check
         run: |
           python -c "
           import ast, os, sys
@@ -41,8 +42,9 @@ jobs:
                   path = os.path.join(dirpath, f)
                   try:
                       ast.parse(open(path).read(), filename=path)
+                      print('  OK ', path)
                   except SyntaxError as e:
-                      errors.append((path, e))
+                      errors.append(e)
                       print('FAIL', path, e)
           sys.exit(len(errors))
           "
@@ -51,27 +53,23 @@ jobs:
         run: pytest tests/ -v --tb=short
 
       - name: Run coverage
-        run: |
-          pytest tests/ --cov=uflask --cov-report=xml --cov-report=term-missing
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: coverage.xml
-          fail_ci_if_error: false
+        run: pytest tests/ --cov=uflask --cov-report=xml --cov-report=term-missing
 
   lint:
-    name: Lint
+    name: Lint (ruff)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
+
       - name: Install ruff
         run: pip install ruff
-      - name: Run ruff
+
+      - name: Run ruff check
         run: ruff check uflask/ --output-format=github
 
   build:
@@ -80,15 +78,20 @@ jobs:
     needs: [test]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install build
-        run: pip install build twine
+
+      - name: Upgrade pip and install build tools
+        run: python -m pip install --upgrade pip setuptools wheel build twine
+
       - name: Build package
         run: python -m build
+
       - name: Check distribution
         run: twine check dist/*
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
