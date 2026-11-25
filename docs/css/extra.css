@@ -1,0 +1,36 @@
+/* docs/css/extra.css – uFlask documentation custom styles */
+
+/* Code block enhancements */
+.highlight pre {
+  border-radius: 6px;
+}
+
+/* Better table styling */
+.md-typeset table:not([class]) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-primary-fg-color);
+  color: var(--md-primary-bg-color);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* API reference method signature */
+.md-typeset code {
+  border-radius: 3px;
+}
+
+/* Admonition tweaks */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 8px;
+}
+
+/* Badge-style inline code in tables */
+.md-typeset td code {
+  font-size: .82rem;
+}
